@@ -1,0 +1,71 @@
+def create_playfair_matrix(key):
+    matrix = [['' for _ in range(5)] for _ in range(5)]
+    key_index = 0
+    
+    for i in range(5):
+        for j in range(5):
+            if key_index < len(key):
+                matrix[i][j] = key[key_index]
+                key_index += 1
+    
+    alphabet = 'A'
+    for i in range(5):
+        for j in range(5):
+            if matrix[i][j] == '':
+                if alphabet == 'J':
+                    alphabet = chr(ord(alphabet) + 1)
+                while alphabet in key:
+                    alphabet = chr(ord(alphabet) + 1)
+                matrix[i][j] = alphabet
+                alphabet = chr(ord(alphabet) + 1)
+    
+    return matrix
+
+def encrypt_message(matrix, message):
+    encrypted = ''
+    length = len(message)
+    
+    i = 0
+    while i < length:
+        c1 = message[i]
+        c2 = message[i + 1] if i + 1 < length else 'X'
+        
+        r1, c1_index = None, None
+        r2, c2_index = None, None
+        
+        for row in range(5):
+            for col in range(5):
+                if matrix[row][col] == c1:
+                    r1, c1_index = row, col
+                if matrix[row][col] == c2:
+                    r2, c2_index = row, col
+        
+        if r1 is not None and r2 is not None and c1_index is not None and c2_index is not None:
+            if r1 == r2:
+                encrypted += matrix[r1][(c1_index + 1) % 5]
+                encrypted += matrix[r2][(c2_index + 1) % 5]
+            elif c1_index == c2_index:
+                encrypted += matrix[(r1 + 1) % 5][c1_index]
+                encrypted += matrix[(r2 + 1) % 5][c2_index]
+            else:
+                encrypted += matrix[r1][c2_index]
+                encrypted += matrix[r2][c1_index]
+        else:
+            encrypted += c1 + c2
+        
+        i += 2
+    
+    return encrypted
+
+def main():
+    key = "MFHIJKUNOPQZVWXYELARGDSTBC"
+    matrix = create_playfair_matrix(key)
+    
+    message = "MUSTSEEYOUOVERCADOGANWESTCOMINGATONCE"
+    encrypted = encrypt_message(matrix, message)
+    
+    print("Original Message:", message)
+    print("Encrypted Message:", encrypted)
+
+if __name__ == "__main__":
+    main()
